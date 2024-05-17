@@ -1,0 +1,90 @@
+#video {
+    border: 1px solid black;
+    width: 400px; /* Decrease the width */
+    height: 300px; /* Decrease the height */
+    border-radius: 10px; /* Add border-radius property to make it rounded */
+}
+
+#photo {
+    border: 1px solid black;
+    width: 400px; /* Decrease the width */
+    height: 300px; /* Decrease the height */
+    border-radius: 10px; /* Add border-radius property to make it rounded */
+}
+
+.camera {
+    width: 480px; /* Decrease the width */
+    display: inline-block;
+}
+
+.output {
+    width:480px; /* Decrease the width */
+    display: inline-block;
+    border-radius: 10px; /* Add border-radius property to make it rounded */ 
+}
+
+#canvas {
+    display: none;
+}
+#startbutton {
+    display: block;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    bottom: 36px;
+    padding: 5px;
+    background-color: #9155FD;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 1.0);
+    cursor: pointer;
+    border-radius: 5px; /* Add border-radius property to make the button more rounded */
+} 
+
+.contentarea {
+    font-size: 16px;
+    font-family: Arial;
+    text-align: center;
+}
+
+body{
+    background-color: #F4F5FA;
+}
+
+#verify {
+    display: inline-block;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    bottom: 36px;
+    padding: 5px;
+    background-color: #9155FD;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 1.0);
+    cursor: pointer;
+    border-radius: 5px; /* Add border-radius property to make the button more rounded */
+} 
+
+#Upload_photo {
+    display: inline-block;
+    position: relative;
+    margin-left: 10px; /* Add some margin between the buttons */
+    bottom: 36px;
+    padding: 5px;
+    background-color: #9155FD;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    color: rgba(255, 255, 255, 1.0);
+    cursor: pointer;
+    border-radius: 5px; /* Add border-radius property to make the button more rounded */
+} 
+
+#Title {
+
+    color: #551A8B;
+}
+
+#output{
+    font-size: 36px;
+}

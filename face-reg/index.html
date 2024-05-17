@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<head>
+    <!-- CSS styles -->
+    <link rel="stylesheet" href="style.css">
+    <title>My Favorite Sport</title>
+</head>
+
+<body>
+    <div class="contentarea">
+        <h1 id="Title">
+            face recognition system
+        </h1>
+        <div class="camera">
+            <video id="video">Video stream not available.</video>
+        </div>
+        <div><button id="startbutton">Take picture
+        </button></div>
+        <canvas id="canvas"></canvas>
+        <div class="output">
+            <img id="photo">
+        </div>
+        <div class="buttons">
+            <button id="verify">Verify User</button>
+            <button id="Upload_photo">Upload Photo</button>
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        /* JS comes here */
+        (function () {
+            var width = 640; // We will scale the photo width to this
+            var height = 0; // This will be computed based on the input stream
+            var streaming = false;
+            var video = null;
+            var canvas = null;
+            var photo = null;
+            var startbutton = null;
+            var verify = null;
+            var upload_photo = null;
+
+            function startup() {
+                video = document.getElementById('video');
+                canvas = document.getElementById('canvas');
+                photo = document.getElementById('photo');
+                startbutton = document.getElementById('startbutton');
+                verify = document.getElementById('verify');
+                upload_photo = document.getElementById('Upload_photo');
+
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch(function (err) {
+                        console.log("An error occurred: " + err);
+                    });
+
+                video.addEventListener('canplay', function (ev) {
+                    if (!streaming) {
+                        height = video.videoHeight / (video.videoWidth / width);
+                        if (isNaN(height)) {
+                            height = width / (4 / 3);
+                        }
+                        video.setAttribute('width', width);
+                        video.setAttribute('height', height);
+                        canvas.setAttribute('width', width);
+                        canvas.setAttribute('height', height);
+                        streaming = true;
+                    }
+                }, false);
+
+                startbutton.addEventListener('click', function (ev) {
+                    takepicture();
+                    ev.preventDefault();
+                }, false);
+
+                verify.addEventListener('click', function (ev) {
+                    sendImageToVerifyAPI(); // Pass the event to prevent default action
+                    ev.preventDefault();
+                });
+                upload_photo.addEventListener('click', function (ev) {
+                    sendImageToUploadAPI(); // Pass the event to prevent default action
+                    ev.preventDefault();
+                });
+
+                clearphoto();
+            }
+
+            function clearphoto() {
+                var context = canvas.getContext('2d');
+                context.fillStyle = "#AAA";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                var data = canvas.toDataURL('image/png');
+                photo.setAttribute('src', data);
+                verify.setAttribute('href', data);
+                upload_photo.setAttribute('href', data);
+            }
+
+            function takepicture() {
+                var context = canvas.getContext('2d');
+                if (width && height) {
+                    canvas.width = width;
+                    canvas.height = height;
+                    context.drawImage(video, 0, 0, width, height);
+                    var data = canvas.toDataURL('image/png');
+                    photo.setAttribute('src', data);
+                    verify.setAttribute('href', data);
+                } else {
+                    clearphoto();
+                }
+            }
+
+            async function sendImageToVerifyAPI() { // Prevent default form submission behavior
+                var data = canvas.toDataURL('image/png');
+                var blob = dataURItoBlob(data); // convert dataURL to blob
+                var formData = new FormData();
+                formData.append('img', blob); // append the image data to formData
+                var encoding
+                const headers = {
+                    'Access-Control-Allow-Origin':'*',
+                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'}
+                
+                fetch('https://hgs-backend.onrender.com/devices/verifyFace', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData ,// send formData,
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    console.log(response);
+                    return response.text(); // or response.text() if the response is text
+                })
+                .then(function (data) {
+                    console.log(data);
+                    document.getElementById('output').innerHTML = 'Opened the door!';
+                    document.getElementById('output').style.color = "#56ca00";
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    document.getElementById('output').innerHTML = 'Verification failed!';
+                    document.getElementById('output').style.color = "#FF4C51";
+                });
+            }
+            function sendImageToUploadAPI() {
+                var data = canvas.toDataURL('image/png');
+                var blob = dataURItoBlob(data); // convert dataURL to blob
+            
+                var formData = new FormData();
+                formData.append('img', blob); // append the image data to formData
+                
+            
+                fetch('https://hgs-backend.onrender.com/devices/setFace', {
+                    method: 'POST',
+                    body: formData // send formData
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    console.log(response);
+                    return response.text(); // or response.text() if the response is text
+                })
+                .then(function (data) {
+                    console.log(data);
+                    document.getElementById('output').innerHTML = 'Upload successful!';
+                    document.getElementById('output').style.color = "#56ca00";
+                    
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                    document.getElementById('output').innerHTML = 'Failed to upload image to server';
+                    document.getElementById('output').style.color = "#FF4C51";
+                });
+            }
+            // function to convert dataURL to blob
+            function dataURItoBlob(dataURI) {
+                var byteString = atob(dataURI.split(',')[1]);
+                var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                var ab = new ArrayBuffer(byteString.length);
+                var ia = new Uint8Array(ab);
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], {type: mimeString});
+            }
+
+            window.addEventListener('load', startup, false);
+        })();
+    </script>
+</body>
+</html>
+
+
